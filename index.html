@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe Schreck - Lernkarten Q2 Geometrie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 1.5rem;
+        }
+        .flip-card-back { transform: rotateY(180deg); position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .accent-border { border: 2px solid #E63946; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center p-4">
+
+    <header class="w-full max-w-2xl mt-8 mb-4">
+        <h1 class="text-4xl font-bold text-center text-[#E63946] mb-2">MATHE SCHRECK</h1>
+        <p class="text-slate-400 text-center uppercase tracking-widest text-sm">Lernkarten: Geometrie (HMF-Training)</p>
+    </header>
+
+    <div class="w-full max-w-md bg-slate-800 h-2 rounded-full mb-8 overflow-hidden">
+        <div id="progressBar" class="bg-[#E63946] h-full transition-all duration-300" style="width: 5%;"></div>
+    </div>
+
+    <div id="cardContainer" class="flip-card w-full max-w-md h-80 mb-8">
+        <div class="flip-card-inner w-full h-full relative" onclick="toggleFlip()">
+            <div class="flip-card-front bg-slate-800 accent-border w-full h-full">
+                <p id="cardFront" class="text-xl font-semibold leading-relaxed"></p>
+            </div>
+            <div class="flip-card-back bg-slate-700 accent-border w-full h-full">
+                <p id="cardBack" class="text-lg leading-relaxed"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-4">
+        <button onclick="prevCard()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition-colors">Zurück</button>
+        <button onclick="nextCard()" class="px-6 py-3 bg-[#E63946] hover:bg-[#d62839] rounded-xl font-bold transition-colors">Nächste</button>
+    </div>
+
+    <p class="mt-8 text-slate-500 text-sm italic">Klicke auf die Karte, um sie umzudrehen.</p>
+    <div class="mt-2 text-slate-400 font-mono" id="counter">1 / 20</div>
+
+    <script>
+        const cards = [
+            { q: "Was besagt der Satz des Thales?", a: "Jeder Winkel in einem Halbkreis über der Hypotenuse ist ein rechter Winkel ($90^\\circ$)." },
+            { q: "Wie berechnet man den Ortsvektor zum Punkt $A(1|2|3)$?", a: "$\\vec{0A} = \\begin{pmatrix} 1 \\\\ 2 \\\\ 3 \\end{pmatrix}$" },
+            { q: "Wie lautet der Verbindungsvektor $\\vec{AB}$ zwischen $A$ und $B$?", a: "$\\vec{AB} = \\vec{0B} - \\vec{0A}$ (Endpunkt minus Anfangspunkt)" },
+            { q: "Formel für den Flächeninhalt eines Trapezes?", a: "$A = \\frac{a+c}{2} \\cdot h$" },
+            { q: "Wie berechnet man den Mittelpunkt $M$ einer Strecke $AB$?", a: "$\\vec{0M} = \\frac{1}{2} \\cdot (\\vec{0A} + \\vec{0B})$" },
+            { q: "Abstand der Punkte $A(x_A|y_A|z_A)$ und $B(x_B|y_B|z_B)$?", a: "$d = |\\vec{AB}| = \\sqrt{(x_B-x_A)^2 + (y_B-y_A)^2 + (z_B-z_A)^2}$" },
+            { q: "Wie lautet die Raumdiagonale $d$ eines Würfels mit Seite $a$?", a: "$d = a \\cdot \\sqrt{3}$" },
+            { q: "Volumen eines Quaders mit Kanten $a, b, c$?", a: "$V = a \\cdot b \\cdot c$" },
+            { q: "Woran erkennt man eine Raute vektoriell?", a: "Alle Seitenvektoren haben die gleiche Länge und gegenüberliegende sind parallel." },
+            { q: "Formel für das Volumen einer Pyramide?", a: "$V = \\frac{1}{3} \\cdot G \\cdot h$" },
+            { q: "Was ist ein regelmäßiges Tetraeder?", a: "Eine Pyramide aus vier deckungsgleichen gleichseitigen Dreiecken." },
+            { q: "Wie lautet das Skalarprodukt zweier Vektoren $\\vec{a} \\cdot \\vec{b}$?", a: "$\\vec{a} \\cdot \\vec{b} = a_1b_1 + a_2b_2 + a_3b_3$" },
+            { q: "Wann stehen zwei Vektoren senkrecht aufeinander?", a: "Wenn ihr Skalarprodukt Null ist: $\\vec{a} \\cdot \\vec{b} = 0$" },
+            { q: "Wie berechnet man die Grundfläche $G$ eines Sechsecks?", a: "$G = 6 \\cdot \\frac{a^2}{4}\\sqrt{3}$" },
+            { q: "Wie lautet die Länge (Betrag) eines Vektors $\\vec{v} = \\begin{pmatrix} v_1 \\\\ v_2 \\\\ v_3 \\end{pmatrix}$?", a: "$|\\vec{v}| = \\sqrt{v_1^2 + v_2^2 + v_3^2}$" },
+            { q: "Wo liegt das Umkreiszentrum bei einem rechtwinkligen Dreieck?", a: "In der Mitte der Hypotenuse: $\\vec{0M} = \\frac{1}{2}(\\vec{0A}+\\vec{0B})$." },
+            { q: "Was ist der Betrag des Vektors $\\vec{v} = \\begin{pmatrix} 3 \\\\ 0 \\\\ 4 \\end{pmatrix}$?", a: "$|\\vec{v}| = \\sqrt{3^2 + 0^2 + 4^2} = \\sqrt{25} = 5$" },
+            { q: "Innenwinkelsumme im Viereck?", a: "$360^\\circ$" },
+            { q: "Satz des Pythagoras im Raum?", a: "$d^2 = \\Delta x^2 + \\Delta y^2 + \\Delta z^2$" },
+            { q: "Wie verschiebt man Punkt $A$ um den Vektor $\\vec{v}$ zum Punkt $B$?", a: "$\\vec{0B} = \\vec{0A} + \\vec{v}$" }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        function updateCard() {
+            isFlipped = false;
+            document.getElementById('cardContainer').classList.remove('flipped');
+            
+            setTimeout(() => {
+                document.getElementById('cardFront').innerHTML = cards[currentIndex].q;
+                document.getElementById('cardBack').innerHTML = cards[currentIndex].a;
+                document.getElementById('counter').innerText = `${currentIndex + 1} / ${cards.length}`;
+                document.getElementById('progressBar').style.width = `${((currentIndex + 1) / cards.length) * 100}%`;
+                
+                if (window.MathJax && MathJax.typesetPromise) {
+                    MathJax.typesetPromise();
+                }
+            }, 150);
+        }
+
+        function toggleFlip() {
+            isFlipped = !isFlipped;
+            document.getElementById('cardContainer').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % cards.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+            updateCard();
+        }
+
+        window.onload = updateCard;
+    </script>
+</body>
+</html>
